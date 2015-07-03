@@ -38,9 +38,9 @@ object Express {
 			}
 
 			if(route.isEmpty) {
-				Future { notFoundResponse("Request method not found: " + method + " " + path) }
+				notFoundResponse("Request method not found: " + method + " " + path)
 			} else {
-				Future { route.get.handler(req) }
+				route.get.handler(req)
 			}
 		}
 	}
