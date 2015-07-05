@@ -16,7 +16,7 @@ trait Routes {
 		routes.get(getId(method, path))
 	}
 
-	def getId(method: String, path: String): String = {
+	private def getId(method: String, path: String): String = {
 		method + path
 	}
 }
