@@ -7,17 +7,18 @@ import ExecutionContext.Implicits.global
 import scala.util.{Success, Failure}
 import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
 import java.net.InetSocketAddress
-import java.util.concurrent.{Executor, ThreadPoolExecutor, TimeUnit, LinkedBlockingQueue}
+import java.util.concurrent.{ThreadPoolExecutor, TimeUnit, LinkedBlockingQueue}
 
 trait SingleThreadListener extends Listener {
 	val server: HttpServer
 	val executor: ThreadPoolExecutor
+	var isShutdown = false
 
 	def listen(path: String)(handler: Request => Response): Unit = {
 		createExchange(path) { exchange: Exchange =>
-			runContext(exchange.request, handler) onComplete {
+			runContext(exchange.request, handler) withFilter(_=>isShutdown == false) onComplete {
 				case Success(res: Response) => exchange.sendResponse(res)
-				case Failure(t) => exchange.sendResponse(errorResponse("An error has occured: " + t.getMessage))
+				case Failure(t) => exchange.sendResponse(errorResponse("An error has occurred: " + t.getMessage))
 			}
 		}
 	}
@@ -26,7 +27,9 @@ trait SingleThreadListener extends Listener {
 		server.start
 		new Subscription {
 			def unsubscribe: Unit = {
-				println("unsubscribed")
+				isShutdown = true
+				server.stop(0)
+				executor.shutdown()
 			}
 		}
 	}

@@ -19,6 +19,10 @@ trait Express {
 	}
 
 	def get(path: String)(handler: Request => Response) = httpMethod("GET", path, handler)
+	
+	def post(path: String)(handler: Request => Response) = httpMethod("POST", path, handler)
+
+	def put(path: String)(handler: Request => Response) = httpMethod("PUT", path, handler)
 
 	def start = listener.start
 }

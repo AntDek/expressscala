@@ -3,6 +3,7 @@ package expressscala.httpserver
 import expressscala.http._
 import scala.collection.JavaConversions._
 import com.sun.net.httpserver.HttpExchange
+import scala.io.Source
 
 
 trait RequestDecoder {
@@ -16,7 +17,19 @@ object HttpRequestDecoder {
 			val headers = Map() ++ h
 			val method = exchange.getRequestMethod
 			val path = exchange.getRequestURI.getPath
-			// val query = httpExchange.getRequestURI.getQuery
+			lazy val query = queryToMap(exchange.getRequestURI.getQuery)
+			lazy val body = Source.fromInputStream(exchange.getRequestBody)
 		}
+	}
+
+	private def queryToMap(query: String): Map[String, String] = {
+		query.split('&').foldLeft(Map[String, String]()) ((m: Map[String, String], v: String) => {
+			val pair = v.split('=')
+			if (pair.length != 2) {
+				m
+			} else {
+				m + (pair(0) -> pair(1))
+			}
+		})
 	}
 }
