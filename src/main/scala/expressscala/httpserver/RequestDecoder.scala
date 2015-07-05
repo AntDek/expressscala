@@ -10,7 +10,7 @@ trait RequestDecoder {
 	def getRequest: Request
 }
 
-object HttpRequestDecoder {
+object RequestDecoder {
 	def apply(exchange: HttpExchange): RequestDecoder = new RequestDecoder {
 		def getRequest = new Request {
 			val h = for ((k, vs) <- exchange.getRequestHeaders) yield (k, vs.toList)

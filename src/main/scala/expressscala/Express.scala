@@ -2,27 +2,24 @@ package expressscala
 
 import expressscala.http._
 import expressscala.httpserver._
+import expressscala.Routes.HttpRoute
 import scala.collection.mutable.MutableList
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 
 trait Express {
 
-	case class HttpRoute(method: String, path: String, handler: Request => Response)
-	
-	val routes: MutableList[HttpRoute]
+	val routes: Routes
 
 	val listener: Listener
 
-	def httpMethod(method: String, path: String, handler: Request => Response): Unit = {
-		routes += new HttpRoute(method, path, handler)
-	}
+	def delete = routes.addHandler("DELETE") _
 
-	def get(path: String)(handler: Request => Response) = httpMethod("GET", path, handler)
-	
-	def post(path: String)(handler: Request => Response) = httpMethod("POST", path, handler)
+	def get = routes.addHandler("GET") _
 
-	def put(path: String)(handler: Request => Response) = httpMethod("PUT", path, handler)
+	def post = routes.addHandler("POST") _
+
+	def put = routes.addHandler("PUT") _
 
 	def start = listener.start
 }
@@ -30,16 +27,14 @@ trait Express {
 object Express {
 
 	def apply(port: Int): Express = new Express {
-		val listener = SingleThreadListener(8081)
-		val routes = MutableList[HttpRoute]()
+		val listener = SingleThreadListener(port)
+		val routes = Routes()
 
 		listener.listen("/") { req: Request =>
 			val method = req.method
 			val path = req.path
 
-			val route = routes.find { r =>
-				r.method == method && r.path == path
-			}
+			val route = routes.findRoute(method, path)
 
 			if(route.isEmpty) {
 				notFoundResponse("Request method not found: " + method + " " + path)

@@ -11,10 +11,9 @@ object DemoServer {
 	val defaultUserJson = """{"name":"Demo User","email":"demo.user@example.com"}"""
 	val defaultUser = User("Demo User", "demo.user@example.com")
 
-	def start: Subscription = {
+	def apply(): Subscription = {
 		val app = Express(port)
-		app.get(path) { r: Request =>
-			println("run")
+		app.get(path) { r =>
 			jsonResponse[User](defaultUser)
 		}
 
@@ -26,6 +25,11 @@ object DemoServer {
 		app.put(path) { r =>
 			val user = r.body.extract[User]
 			jsonResponse[User](user)
+		}
+
+		app.delete(path) { r =>
+			val user = r.query
+			jsonResponse[User](new User(user("name"), user("email")))
 		}
 
 		app.start

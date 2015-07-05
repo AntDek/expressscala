@@ -29,7 +29,7 @@ trait Exchange {
 object Exchange {
 	def apply(exch: HttpExchange) = new Exchange {
 		val exchange = exch
-		val request: Request = HttpRequestDecoder(exchange).getRequest
+		val request: Request = RequestDecoder(exchange).getRequest
 	}
 
 

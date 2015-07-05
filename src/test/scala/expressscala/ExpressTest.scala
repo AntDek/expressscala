@@ -11,7 +11,7 @@ import dispatch._, Defaults._
 @RunWith(classOf[JUnitRunner])
 class ExpressTest extends FunSuite with BeforeAndAfterAll {
 
-	val subscription = DemoServer.start
+	val subscription = DemoServer()
 	val request = url("http://localhost:" + DemoServer.port + DemoServer.path)
 
 
@@ -31,6 +31,13 @@ class ExpressTest extends FunSuite with BeforeAndAfterAll {
 		val requestAsJson = request.PUT.setContentType("application/json", "UTF-8")
 		val postWithBody = requestAsJson << DemoServer.defaultUserJson
 		val userJson = Http(postWithBody OK as.String)
+		assert(Await.result(userJson, 5 second) == DemoServer.defaultUserJson)
+	}
+
+	test("Server should serve delete request and read query parameters") {
+		val user = DemoServer.defaultUser
+		val getRequest = request.DELETE <<? Map("name" -> user.name, "email" -> user.email)
+		val userJson = Http(getRequest OK as.String)
 		assert(Await.result(userJson, 5 second) == DemoServer.defaultUserJson)
 	}
 
