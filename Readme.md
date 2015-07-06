@@ -32,7 +32,7 @@ val app = Express(8081)
 
 app.post("/user") { r =>
   val user = r.body.extract[User]
-  textResponse("Resived data for user name: " + user.name)
+  textResponse("Received data for user name: " + user.name)
 }
 
 app.get("/user") { r =>
