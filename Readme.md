@@ -22,7 +22,7 @@ app.get("/") { r =>
 app.start
 ```
 
-**handling json obejcts**
+**handling json objects**
 ```scala
 import expressscala._
 
